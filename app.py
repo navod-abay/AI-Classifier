@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import numpy as np
 import pickle
-import face_recognition
 import logging
 import json
 from datetime import datetime
@@ -13,6 +12,15 @@ from PIL import Image
 import shutil
 import time
 from pathlib import Path
+
+# Try to import face_recognition, but provide a fallback
+try:
+    import face_recognition
+    FACE_RECOGNITION_AVAILABLE = True
+except ImportError:
+    FACE_RECOGNITION_AVAILABLE = False
+    print("WARNING: face_recognition module not found. Face detection features will be disabled.")
+    print("Please install with: pip install face-recognition")
 
 # Configure logging
 logging.basicConfig(
@@ -157,6 +165,10 @@ def load_image(filename):
 
 def detect_faces(image, filename):
     """Detect and encode faces in an image"""
+    if not FACE_RECOGNITION_AVAILABLE:
+        logger.warning(f"Face recognition not available, skipping face detection for {filename}")
+        return [], []
+    
     try:
         face_locations = face_recognition.face_locations(image)
         face_encodings = face_recognition.face_encodings(image, face_locations)
@@ -169,6 +181,9 @@ def detect_faces(image, filename):
 
 def identify_faces(face_encodings, known_faces):
     """Match face encodings with known faces"""
+    if not FACE_RECOGNITION_AVAILABLE:
+        return ["Face recognition not available"] * len(face_encodings) if face_encodings else []
+    
     names = []
     
     for face_encoding in face_encodings:

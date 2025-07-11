@@ -1,29 +1,40 @@
-# Enhanced Image Classifier
+# Laptop Flask Labeler System
 
-A Flask-based web application for classifying images with dynamic categories and keyboard shortcuts. Perfect for organizing large photo collections from your NAS drive.
+A Flask-based web application for labeling images with keep/delete decisions and managing face recognition interactively while working offline. This system works with a local cache of images and OCR data, synchronizing with a NAS periodically.
 
 ## Features
 
-### 🆕 New Features
-- **Dynamic Categories**: Add, edit, and delete categories on the fly
+- **Local Caching**: Uses a local cache for images, OCR, and face data
+- **Face Recognition**: Identifies faces in images and allows name assignment
+- **Offline Labeling**: Works offline using cached data
+- **NAS Synchronization**: Automatically syncs with NAS when connected to the correct WiFi
+- **OCR Display**: Shows OCR text from pre-processed files (no local OCR processing)
 - **Keyboard Shortcuts**: Quick labeling with customizable key bindings
-- **NAS Integration**: Direct access to images from network drives (Z://GooglePhotos/images)
-- **Modern UI**: Beautiful, responsive interface with visual feedback
-- **Category Management**: Full CRUD operations for categories via web interface
 
-### 📋 Core Features
-- Label images into custom categories
-- Undo functionality
-- Progress tracking
-- Automatic image organization into labeled folders
-- CSV export of all labels
+## System Architecture
+
+### Directory Structure
+
+- `cache/images/` — Local copy of images to label
+- `cache/ocr/` — Local copy of OCR text files from NAS
+- `cache/labels.csv` — Image file names with keep/delete decision
+- `cache/faces.pkl` — Known face encodings and names
+- `labeled/` — Symbolic links to labeled images, organized by category
+
+### Components
+
+1. **Flask Server (`app.py`)**: Main web interface for labeling and face recognition
+2. **Sync Worker (`worker.py`)**: Runs as a scheduled task to sync with NAS
+3. **Web Templates**: HTML interfaces for the labeling process
 
 ## Setup
 
 ### Prerequisites
+
 - Python 3.7+
-- Access to your NAS drive mapped to Z: (or modify the path in app.py)
-- Flask
+- Windows computer
+- NAS drive mapped to Z:
+- Rsync for Windows (cwRsync or similar)
 
 ### Installation
 
@@ -32,72 +43,63 @@ A Flask-based web application for classifying images with dynamic categories and
    pip install -r requirements.txt
    ```
 
-2. **Configure image source:**
-   - Make sure your NAS is mapped to `Z:/GooglePhotos/images`
-   - Or modify the `UNLABELLED_FOLDER` path in `app.py` to point to your image directory
+2. **Set up NAS mapping:**
+   - Map your NAS share to drive `Z:`
+   - Ensure the following paths exist on the NAS:
+     - `Z:/photos_preprocessed/` - Source images
+     - `Z:/ocr_data/` - OCR text files
+     - `Z:/labels/` - For syncing labels.csv
+     - `Z:/known_faces/` - For syncing faces.pkl
 
-3. **Run the application:**
+3. **Configure Windows Scheduled Task:**
+   - Open Task Scheduler
+   - Create a new task with these settings:
+     - Name: "Image Labeler Sync"
+     - Trigger: Every 10 minutes
+     - Action: Start Program
+     - Program/script: `python`
+     - Add arguments: `worker.py`
+     - Start in: `C:\Users\dell\source\AI Classifier` (adjust to your path)
+   
+   Optional: Add a condition to only run when connected to "Abayasekera" WiFi
+   (The worker script already checks for this, but you can add it as a task condition too)
+
+4. **Run the Flask application:**
    ```powershell
    python app.py
    ```
 
-4. **Open your browser:**
+5. **Open your browser:**
    Navigate to `http://localhost:5000`
 
 ## Usage
 
 ### Labeling Images
-1. Open the web interface
-2. Use mouse clicks or keyboard shortcuts to classify images
-3. Default shortcuts:
-   - `1` - ✅ Keep
-   - `2` - ❌ Delete  
-   - `3` - ⭐ Favorite
-   - `4` - 📦 Archive
-   - `u` - Undo last action
 
-### Managing Categories
-1. Click "⚙️ Manage Categories" from the main interface
-2. **Add Categories**: Enter name, keyboard shortcut, and emoji
-3. **Edit Categories**: Modify existing category properties
-4. **Delete Categories**: Remove unwanted categories (must keep at least one)
+1. Open the web interface at http://localhost:5000
+2. For each image:
+   - Review any OCR text displayed
+   - Check detected faces and assign/confirm names
+   - Click a category button or use keyboard shortcuts to label the image
+
+### Face Recognition
+
+- Faces are automatically detected in images
+- If a face matches someone in the database, their name will appear
+- Enter or update names in the text box for each face
+- Names are saved to the database for future recognition
 
 ### Keyboard Shortcuts
-- **Number keys (1-9)**: Quick labeling based on your category setup
-- **U key**: Undo the last labeling action
-- **Focus**: No need to click - shortcuts work immediately when page loads
 
-## File Structure
+- Use keyboard keys corresponding to categories (shown in parentheses)
+- Press `u` to undo the last labeling action
 
-```
-AI Classifier/
-├── app.py                 # Main Flask application
-├── categories.json        # Dynamic category configuration
-├── labels.csv            # Label history and results
-├── requirements.txt      # Python dependencies
-├── labeled/              # Organized labeled images
-│   ├── keep/
-│   ├── delete/
-│   ├── favorite/
-│   └── archive/
-├── templates/
-│   ├── index.html        # Main labeling interface
-│   ├── categories.html   # Category management
-│   └── completed.html    # Completion page
-└── static/              # Static assets (if any)
-```
+### Synchronization
 
-## Configuration
-
-### Changing Image Source
-Edit the `UNLABELLED_FOLDER` variable in `app.py`:
-```python
-UNLABELLED_FOLDER = 'Z:/GooglePhotos/images'  # Your image directory
-```
-
-### Default Categories
-The app starts with these categories, but you can modify them via the web interface:
-- Keep (Key: 1, Emoji: ✅)
+- The sync worker runs every 10 minutes when connected to "Abayasekera" WiFi
+- It pulls new images and OCR text from the NAS
+- It pushes updated labels and face data to the NAS
+- No manual sync is needed
 - Delete (Key: 2, Emoji: ❌)
 - Favorite (Key: 3, Emoji: ⭐)
 - Archive (Key: 4, Emoji: 📦)
