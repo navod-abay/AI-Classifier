@@ -1,0 +1,18 @@
+{
+  "dbap": {
+    "name": "DBAP",
+    "key": "d"
+  },
+  "amuthu": {
+    "name": "Amuthu",
+    "key": "a"
+  },
+  "trash": {
+    "name": "Trash",
+    "key": "t"
+  },
+  "aiesecmarketing": {
+    "name": "AIESECMarketing",
+    "key": "j"
+  }
+}

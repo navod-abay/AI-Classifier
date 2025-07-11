@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Images Labeled - Image Labeler</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        .success-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .stats {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 18px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">SUCCESS</div>
+        <h1>All Images Labeled!</h1>
+        <p>Congratulations! You have successfully labeled all available images.</p>
+        
+        <div class="stats">
+            <strong>{{ progress }}</strong> images processed
+        </div>
+        
+        <div>
+            <a href="/" class="btn btn-primary">Check for New Images</a>
+            <a href="/categories" class="btn btn-secondary">Manage Categories</a>
+        </div>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+            Labeled images are organized in the "labeled" folder by category.
+        </p>
+    </div>
+</body>
+</html>
